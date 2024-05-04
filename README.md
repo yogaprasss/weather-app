@@ -1,29 +1,19 @@
-# weather-app
+# Weather App
+This is the Weather App by Yoga Prasetyo as a submission test for nexlaw.ai Frontend Developer position
 
-This template should help get you started developing with Vue 3 in Vite.
+## Getting Started
 
-## Recommended IDE Setup
+After cloning the repository, the first thing you need to do is installing all dependencies
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+and then copy the provided .env file to the directory
 
-```sh
+and then run the development server:
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+Open [http://localhost:5173](http://localhost:5173) with your browser to see the result.

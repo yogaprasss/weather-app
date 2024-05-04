@@ -1,7 +1,14 @@
 <template>
   <Header @select-location="onSelectLocation" />
   <div class="main">
-    <div class="container">
+    <div v-if="isLoading">Loading...</div>
+    <div v-if="!isLoading && !location && !weatherData">
+      Search location to show weather data
+    </div>
+    <div v-if="!isLoading && location && !weatherData" class="error">
+      An error has occured
+    </div>
+    <div v-if="!isLoading && location && weatherData" class="container">
       <div class="content-header">
         <h3>Weather Forecast</h3>
         <p>{{ formatDate(weatherData.date) }}</p>
@@ -60,27 +67,7 @@
 import Header from '@/components/Header.vue';
 import { weatherIcons } from '@/utils/icon';
 import { formatDate } from '@/utils/date';
-
-const weather = {
-  date: '2024-05-04T12:00:00Z',
-  icon: 3,
-  text: 'Partly Sunny',
-  temperature: {
-    metric: 30,
-    imperial: 86
-  },
-  realFeel: {
-    metric: 35,
-    imperial: 95
-  },
-  wind: {
-    speed: 10,
-    unit: 'mph',
-    direction: 'NE'
-  },
-  uvIndex: 4,
-  humidity: 90
-};
+import { getCurrentWeather } from '@/services/weather';
 
 export default {
   name: 'home',
@@ -90,15 +77,49 @@ export default {
   data: () => {
     return {
       location: null,
-      weatherData: weather,
+      weatherData: null,
       isShowDetail: false,
       weatherIcons,
-      isMetric: true
+      isMetric: true,
+      isLoading: false
+    }
+  },
+  watch: {
+    'location.key': (value) => {
+      console.log({ value });
     }
   },
   methods: {
-    onSelectLocation({ value, name, country, area }) {
-      this.location = { key: value, name, country, area };
+    async onSelectLocation({ value: key, name, country, area }) {
+      this.location = { name, country, area };
+      this.isLoading = true;
+      const result = await getCurrentWeather(key);
+      if (result) {
+        const data = result[0];
+        this.weatherData = {
+          date: data.LocalObservationDateTime,
+          icon: data.WeatherIcon,
+          text: data.WeatherText,
+          temperature: {
+            metric: data.Temperature.Metric.Value,
+            imperial: data.Temperature.Imperial.Value
+          },
+          realFeel: {
+            metric: data.RealFeelTemperature.Metric.Value,
+            imperial: data.RealFeelTemperature.Imperial.Value
+          },
+          wind: {
+            speed: data.Wind.Speed.Metric.Value,
+            unit: data.Wind.Speed.Metric.Unit,
+            direction: data.Wind.Direction.English
+          },
+          uvIndex: data.UVIndex,
+          humidity: data.RelativeHumidity
+        };
+      } else {
+        this.weatherData = null;
+      }
+      this.isLoading = false;
     },
     formatDate,
     toggleDetail() {
@@ -199,6 +220,10 @@ export default {
   border-top: 1px solid #ccc;
   margin: 12px 0;
   padding: 0;
+}
+
+.error {
+  color: red;
 }
 
 @media screen and (min-width: 600px) {

@@ -2,7 +2,10 @@
   <div class="container">
     <input placeholder="Search your location here" v-model="location" />
     <div v-if="isShowList" class="options">
-      <div v-if="options.length === 0" class="not-found">No location found</div>
+      <div v-if="options.length === 0 && !isError" class="not-found">No location found</div>
+      <div v-else-if="options.length === 0 && isError" class="not-found error">
+        An error has occured
+      </div>
       <ul v-else>
         <li v-for="option in options" :key="option.value">
           <button class="option" @click="onSelectOption(option)">
@@ -18,27 +21,33 @@
 import { debounce } from '@/utils/debounce';
 import { getLocations } from '@/services/locations';
 
-const locationOptions = [
-  { value: 1982856, name: 'Jakarta Pusat', country: 'Indonesia', area: 'Jakarta' },
-  { value: 1982855, name: 'Jakarta Selatan', country: 'Indonesia', area: 'Jakarta' }
-]
-
 export default {
   name: 'Autocomplete',
   data: () => {
     return {
       location: '',
       isShowList: false,
-      options: []
+      options: [],
+      isError: false
     }
   },
   created() {
     this.fetchLocation = debounce(async (value) => {
       this.isShowList = false;
       if (value) {
-        // const result = await getLocations(value);
-        // if (result) this.isShowList = true;
-        this.options = locationOptions;
+        const result = await getLocations(value);
+        if (result) {
+          this.options = result.map((item) => ({
+            value: item.Key,
+            name: item.LocalizedName,
+            country: item.Country.LocalizedName,
+            area: item.AdministrativeArea.LocalizedName,
+          }));
+          this.isError = false;
+        } else {
+          this.options = [];
+          this.isError = true;
+        }
         this.isShowList = true;
       }
     }, 2000);
@@ -111,5 +120,9 @@ export default {
 
 .options ul > :last-child .option {
   border-radius: 0 0 8px 8px;
+}
+
+.error {
+  color: red;
 }
 </style>
