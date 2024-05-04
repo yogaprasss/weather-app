@@ -5,8 +5,8 @@
       <div v-if="options.length === 0" class="not-found">No location found</div>
       <ul v-else>
         <li v-for="option in options" :key="option.value">
-          <button class="option" @click="onSelectOption(option.value)">
-            {{ option.label }}
+          <button class="option" @click="onSelectOption(option)">
+            {{ option.name }}
           </button>
         </li>
       </ul>
@@ -19,8 +19,8 @@ import { debounce } from '@/utils/debounce';
 import { getLocations } from '@/services/locations';
 
 const locationOptions = [
-  { value: 1982856, label: 'Jakarta Pusat' },
-  { value: 1982855, label: 'Jakarta Selatan' }
+  { value: 1982856, name: 'Jakarta Pusat', country: 'Indonesia', area: 'Jakarta' },
+  { value: 1982855, name: 'Jakarta Selatan', country: 'Indonesia', area: 'Jakarta' }
 ]
 
 export default {
